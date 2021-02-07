@@ -148,7 +148,7 @@ pub fn vec_decimal_sub(a: &[u8], b: &[u8]) -> Vec<u8> {
 }
 
 fn main() -> Result<(), Box<dyn Error>> {
-    let file = File::open("./examples/p1/input.txt")?;
+    let file = File::open("./examples/p1_karatsuba_mul/input.txt")?;
     let numbers = BufReader::new(file)
         .lines()
         .map(|line| {
