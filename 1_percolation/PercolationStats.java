@@ -7,7 +7,7 @@ public class PercolationStats {
   private final double[] openFractions;
   // perform independent trials on an n-by-n grid
   public PercolationStats(int n, int trials) {
-    if(n <= 1 || trials <= 1) {
+    if (n < 2 || trials <= 2) {
       throw new IllegalArgumentException();
     }
 
@@ -18,9 +18,9 @@ public class PercolationStats {
       Percolation percolation = new Percolation(n);
 
       while (!percolation.percolates()) {
-        int r = StdRandom.uniform(n) + 1;
+        int row = StdRandom.uniform(n) + 1;
         int col = StdRandom.uniform(n) + 1;
-        percolation.open(r, col);
+        percolation.open(row, col);
       }
 
       openFractions[t] = ((double) percolation.numberOfOpenSites()) / n / n;
