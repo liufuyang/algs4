@@ -8,6 +8,7 @@ public class Percolation {
 
   private final int n;
   private final int[] openReg;
+  private int opened = 0;
 
   // creates n-by-n grid, with all sites initially blocked
   /** Percolation. */
@@ -30,22 +31,22 @@ public class Percolation {
     int ind = index(row, col);
     if (openReg[ind] == 0) {
       // not opened, we open it
-      if (checkBool(row - 1, col)) {
+      if (row > 1) {
         if (isOpen(row - 1, col)) {
           uf.union(ind + 1, ind - n + 1);
         }
       }
-      if (checkBool(row + 1, col)) {
+      if (row < n) {
         if (isOpen(row + 1, col)) {
           uf.union(ind + 1, ind + n + 1);
         }
       }
-      if (checkBool(row, col - 1)) {
+      if (col > 1) {
         if (isOpen(row, col - 1)) {
           uf.union(ind + 1, ind - 1 + 1);
         }
       }
-      if (checkBool(row, col + 1)) {
+      if (col < n) {
         if (isOpen(row, col + 1)) {
           uf.union(ind + 1, ind + 1 + 1);
         }
@@ -60,6 +61,7 @@ public class Percolation {
       }
 
       openReg[ind] = 1;
+      opened ++;
     }
   }
 
@@ -78,13 +80,7 @@ public class Percolation {
 
   // returns the number of open sites
   public int numberOfOpenSites() {
-    int open = 0;
-    for (int i = 0; i < openReg.length; i++) {
-      if (openReg[i] == 1) {
-        open += 1;
-      }
-    }
-    return open;
+    return opened;
   }
 
   // does the system percolate?
