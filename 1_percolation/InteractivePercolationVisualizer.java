@@ -18,7 +18,7 @@ public class InteractivePercolationVisualizer {
 
     public static void main(String[] args) {
         // n-by-n percolation system (read from command-line, default = 10)
-        int n = 10;          
+        int n = 3;
         if (args.length == 1) n = Integer.parseInt(args[0]);
 
         // repeatedly open site specified my mouse click and draw resulting system
@@ -49,6 +49,7 @@ public class InteractivePercolationVisualizer {
                     }
                     perc.open(i, j);
                 }
+                System.out.println("Is full: " + perc.isFull(i, j));
 
                 // draw n-by-n percolation system
                 PercolationVisualizer.draw(perc, n);

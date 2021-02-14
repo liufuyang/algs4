@@ -1,26 +1,22 @@
-import edu.princeton.cs.algs4.QuickFindUF;
-import java.util.Arrays;
-import java.util.Optional;
-import java.util.stream.Stream;
+import edu.princeton.cs.algs4.WeightedQuickUnionUF;
 
+/** Percolation. */
 public class Percolation {
 
-  private QuickFindUF uf;
-  private int n;
-  private int[] openReg;
+  /** WeightedQuickUnionUF. */
+  private final WeightedQuickUnionUF uf;
+
+  private final int n;
+  private final int[] openReg;
 
   // creates n-by-n grid, with all sites initially blocked
+  /** Percolation. */
   public Percolation(int n) {
-    if (n < 0) {
+    if (n <= 0) {
       throw new IllegalArgumentException("n must above 0");
     }
     this.n = n;
-    uf = new QuickFindUF(n * n + 2); // 0 and n*n + 1 is the virtual site
-
-    for (int i = 0; i < n; i++) {
-      uf.union(i + 1, 0);
-      uf.union((n - 1) * n + i + 1, n * n + 1);
-    }
+    uf = new WeightedQuickUnionUF(n * n + 2); // 0 and n*n + 1 is the virtual site
 
     this.openReg = new int[n * n];
     for (int i = 0; i < n * n; i++) {
@@ -28,24 +24,40 @@ public class Percolation {
     }
   }
 
-  // opens the site (row, col) if it is not open already
+  /** opens the site (row, col) if it is not open already. */
   public void open(int row, int col) {
     check(row, col);
-    int ind = (row - 1) * n + col - 1;
+    int ind = index(row, col);
     if (openReg[ind] == 0) {
       // not opened, we open it
-      Stream.of(
-              position(row - 1, col, n),
-              position(row + 1, col, n),
-              position(row, col - 1, n),
-              position(row, col + 1, n))
-          .flatMap(Optional::stream)
-          .forEach(
-              p -> {
-                if (isOpen(p.row, p.col)) {
-                  uf.union(ind + 1, p.index() + 1);
-                }
-              });
+      if (checkBool(row - 1, col)) {
+        if (isOpen(row - 1, col)) {
+          uf.union(ind + 1, ind - n + 1);
+        }
+      }
+      if (checkBool(row + 1, col)) {
+        if (isOpen(row + 1, col)) {
+          uf.union(ind + 1, ind + n + 1);
+        }
+      }
+      if (checkBool(row, col - 1)) {
+        if (isOpen(row, col - 1)) {
+          uf.union(ind + 1, ind - 1 + 1);
+        }
+      }
+      if (checkBool(row, col + 1)) {
+        if (isOpen(row, col + 1)) {
+          uf.union(ind + 1, ind + 1 + 1);
+        }
+      }
+
+      // handle end row case
+      if (row == 1) {
+        uf.union(col, 0);
+      }
+      if (row == n) {
+        uf.union((n - 1) * n + col, n * n + 1);
+      }
 
       openReg[ind] = 1;
     }
@@ -54,53 +66,47 @@ public class Percolation {
   // is the site (row, col) open?
   public boolean isOpen(int row, int col) {
     check(row, col);
-    int ind = (row - 1) * n + col - 1;
+    int ind = index(row, col);
     return openReg[ind] == 1;
   }
 
   // is the site (row, col) full?
   public boolean isFull(int row, int col) {
     check(row, col);
-    return isOpen(row, col) && uf.connected((row - 1) * n + col - 1 + 1, 0);
+    return isOpen(row, col) && connected(index(row, col) + 1, 0);
   }
 
   // returns the number of open sites
   public int numberOfOpenSites() {
-    return (int) Arrays.stream(openReg).filter(o -> o == 1).count();
+    int open = 0;
+    for (int i = 0; i < openReg.length; i++) {
+      if (openReg[i] == 1) {
+        open += 1;
+      }
+    }
+    return open;
   }
 
   // does the system percolate?
   public boolean percolates() {
-    return uf.connected(0, n * n + 1);
+    return connected(0, n * n + 1);
   }
 
   private void check(int a, int b) {
-    if (a < 1 || a > n || b < 1 || b > n) {
+    if (!checkBool(a, b)) {
       throw new IllegalArgumentException();
     }
   }
 
-  class Position {
-    public int row;
-    public int col;
-
-    public Position(int row, int col) {
-      this.row = row;
-      this.col = col;
-    }
-
-    public int index() {
-      return (row - 1) * n + col - 1;
-    }
+  private boolean checkBool(int a, int b) {
+    return a >= 1 && a <= n && b >= 1 && b <= n;
   }
 
-  public Optional<Position> position(int row, int col, int n) {
-    if (row < 1 || row > n || col < 1 || col > n) {
-      return Optional.empty();
-    }
-    return Optional.of(new Position(row, col));
+  private boolean connected(int p, int q) {
+    return uf.find(p) == uf.find(q);
   }
 
-  // test client (optional)
-  public static void main(String[] args) {}
+  private int index(int row, int col) {
+    return (row - 1) * n + col - 1;
+  }
 }
