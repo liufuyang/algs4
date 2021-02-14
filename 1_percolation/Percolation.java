@@ -3,8 +3,10 @@ import edu.princeton.cs.algs4.WeightedQuickUnionUF;
 /** Percolation. */
 public class Percolation {
 
-  /** WeightedQuickUnionUF. */
+  /** A union find structure for telling whether percolation happens. */
   private final WeightedQuickUnionUF uf;
+  /** Another union find for telling whether a cell is full (connecting to top virtual node) */
+  private final WeightedQuickUnionUF ufNoBottom;
 
   private final int n;
   private final int[] openReg;
@@ -18,6 +20,7 @@ public class Percolation {
     }
     this.n = n;
     uf = new WeightedQuickUnionUF(n * n + 2); // 0 and n*n + 1 is the virtual site
+    ufNoBottom = new WeightedQuickUnionUF(n * n + 1); // 0 is the virtual site
 
     this.openReg = new int[n * n];
     for (int i = 0; i < n * n; i++) {
@@ -34,34 +37,39 @@ public class Percolation {
       if (row > 1) {
         if (isOpen(row - 1, col)) {
           uf.union(ind + 1, ind - n + 1);
+          ufNoBottom.union(ind + 1, ind - n + 1);
         }
       }
       if (row < n) {
         if (isOpen(row + 1, col)) {
           uf.union(ind + 1, ind + n + 1);
+          ufNoBottom.union(ind + 1, ind + n + 1);
         }
       }
       if (col > 1) {
         if (isOpen(row, col - 1)) {
           uf.union(ind + 1, ind - 1 + 1);
+          ufNoBottom.union(ind + 1, ind - 1 + 1);
         }
       }
       if (col < n) {
         if (isOpen(row, col + 1)) {
           uf.union(ind + 1, ind + 1 + 1);
+          ufNoBottom.union(ind + 1, ind + 1 + 1);
         }
       }
 
       // handle end row case
       if (row == 1) {
         uf.union(col, 0);
+        ufNoBottom.union(col, 0);
       }
       if (row == n) {
         uf.union((n - 1) * n + col, n * n + 1);
       }
 
       openReg[ind] = 1;
-      opened ++;
+      opened++;
     }
   }
 
@@ -75,7 +83,7 @@ public class Percolation {
   // is the site (row, col) full?
   public boolean isFull(int row, int col) {
     check(row, col);
-    return isOpen(row, col) && connected(index(row, col) + 1, 0);
+    return isOpen(row, col) && ufNoBottom.find(index(row, col) + 1) == ufNoBottom.find(0);
   }
 
   // returns the number of open sites
