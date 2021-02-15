@@ -7,7 +7,7 @@ public class PercolationStats {
   private final double[] openFractions;
   // perform independent trials on an n-by-n grid
   public PercolationStats(int n, int trials) {
-    if (n < 2 || trials <= 2) {
+    if (n <= 0 || trials <= 0) {
       throw new IllegalArgumentException();
     }
 

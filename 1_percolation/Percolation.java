@@ -7,7 +7,7 @@ public class Percolation {
   private final WeightedQuickUnionUF uf;
 
   private final int n;
-  private final State[] state;
+  private final int[] state; // 0 - not open, 1 - open, 2 - bottom connected
   private int opened = 0;
   private boolean percolated = false;
 
@@ -20,97 +20,84 @@ public class Percolation {
     this.n = n;
     uf = new WeightedQuickUnionUF(n * n + 1); // 0 and n*n + 1 is the virtual site
 
-    this.state = new State[n * n + 1];
+    this.state = new int[n * n + 1];
     for (int i = 0; i < n * n + 1; i++) {
-      this.state[i] = new State();
+      this.state[i] = 0;
     }
-    this.state[0].setTopConnected(true);
   }
 
   /** opens the site (row, col) if it is not open already. */
   public void open(int row, int col) {
     check(row, col);
     int ind = index(row, col);
-    if (!state[ind + 1].isOpened()) {
+    if (state[ind + 1] == 0) {
       // not opened, we open it
       // handle end row case
       if (row == 1) {
         uf.union(col, 0);
-        state[uf.find(ind + 1)].setTopConnected(true);
-        state[ind + 1].setTopConnected(true);
       }
       if (row == n) {
         // uf.union((n - 1) * n + col, n * n + 1);
-        state[uf.find(ind + 1)].setBottomConnected(true);
-        state[ind + 1].setBottomConnected(true);
+        state[uf.find(ind + 1)] = 2;
+        state[ind + 1] = 2;
       }
 
       if (row > 1) {
         if (isOpen(row - 1, col)) {
-          boolean topC =
-              state[uf.find(ind + 1 - n)].isTopConnected() || state[ind + 1].isTopConnected();
-          boolean botC =
-              state[uf.find(ind + 1 - n)].isBottomConnected() || state[ind + 1].isBottomConnected();
+          boolean botC = state[uf.find(ind + 1 - n)] == 2 || state[ind + 1] == 2;
 
           uf.union(ind + 1, ind - n + 1);
 
-          state[uf.find(ind + 1)].setTopConnected(topC);
-          state[uf.find(ind + 1)].setBottomConnected(botC);
-          state[ind + 1].setTopConnected(topC);
-          state[ind + 1].setBottomConnected(botC);
+          if (botC) {
+            state[uf.find(ind + 1)] = 2;
+            state[ind + 1] = 2;
+          }
         }
       }
       if (row < n) {
         if (isOpen(row + 1, col)) {
-          boolean topC =
-              state[uf.find(ind + 1 + n)].isTopConnected() || state[ind + 1].isTopConnected();
-          boolean botC =
-              state[uf.find(ind + 1 + n)].isBottomConnected() || state[ind + 1].isBottomConnected();
+          boolean botC = state[uf.find(ind + 1 + n)] == 2 || state[ind + 1] == 2;
 
           uf.union(ind + 1, ind + n + 1);
 
-          state[uf.find(ind + 1)].setTopConnected(topC);
-          state[uf.find(ind + 1)].setBottomConnected(botC);
-          state[ind + 1].setTopConnected(topC);
-          state[ind + 1].setBottomConnected(botC);
+          if (botC) {
+            state[uf.find(ind + 1)] = 2;
+            state[ind + 1] = 2;
+          }
         }
       }
       if (col > 1) {
         if (isOpen(row, col - 1)) {
-          boolean topC =
-              state[uf.find(ind + 1 - 1)].isTopConnected() || state[ind + 1].isTopConnected();
-          boolean botC =
-              state[uf.find(ind + 1 - 1)].isBottomConnected() || state[ind + 1].isBottomConnected();
+          boolean botC = state[uf.find(ind + 1 - 1)] == 2 || state[ind + 1] == 2;
 
           uf.union(ind + 1, ind + 1 - 1);
 
-          state[uf.find(ind + 1)].setTopConnected(topC);
-          state[uf.find(ind + 1)].setBottomConnected(botC);
-          state[ind + 1].setTopConnected(topC);
-          state[ind + 1].setBottomConnected(botC);
+          if (botC) {
+            state[uf.find(ind + 1)] = 2;
+            state[ind + 1] = 2;
+          }
         }
       }
       if (col < n) {
         if (isOpen(row, col + 1)) {
-          boolean topC =
-              state[uf.find(ind + 1 + 1)].isTopConnected() || state[ind + 1].isTopConnected();
-          boolean botC =
-              state[uf.find(ind + 1 + 1)].isBottomConnected() || state[ind + 1].isBottomConnected();
+          boolean botC = state[uf.find(ind + 1 + 1)] == 2 || state[ind + 1] == 2;
 
           uf.union(ind + 1, ind + 1 + 1);
 
-          state[uf.find(ind + 1)].setTopConnected(topC);
-          state[uf.find(ind + 1)].setBottomConnected(botC);
-          state[ind + 1].setTopConnected(topC);
-          state[ind + 1].setBottomConnected(botC);
+          if (botC) {
+            state[uf.find(ind + 1)] = 2;
+            state[ind + 1] = 2;
+          }
         }
       }
 
-      if (state[uf.find(ind + 1)].isTopConnected() && state[uf.find(ind + 1)].isBottomConnected()) {
+      if (isFull(row, col) && state[uf.find(ind + 1)] == 2) {
         percolated = true;
       }
 
-      state[ind + 1].setOpened(true);
+      if (state[ind + 1] != 2) {
+        state[ind + 1] = 1;
+      }
       opened++;
     }
   }
@@ -119,7 +106,7 @@ public class Percolation {
   public boolean isOpen(int row, int col) {
     check(row, col);
     int ind = index(row, col);
-    return state[ind + 1].isOpened();
+    return state[ind + 1] != 0;
   }
 
   // is the site (row, col) full?
@@ -159,7 +146,6 @@ public class Percolation {
 
   private class State {
     private boolean opened = false;
-    private boolean topConnected = false;
     private boolean bottomConnected = false;
 
     public boolean isOpened() {
@@ -168,14 +154,6 @@ public class Percolation {
 
     public void setOpened(boolean opened) {
       this.opened = opened;
-    }
-
-    public boolean isTopConnected() {
-      return topConnected;
-    }
-
-    public void setTopConnected(boolean topConnected) {
-      this.topConnected = topConnected;
     }
 
     public boolean isBottomConnected() {
