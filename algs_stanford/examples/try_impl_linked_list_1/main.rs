@@ -1,4 +1,10 @@
-#![feature(option_insert)]
+/// Safe but not efficient stack queue
+/// If normal borrow checker cannot work, then the borrow checker bug still exist, use
+/// rustc -Zpolonius main.rs
+/// See https://github.com/rust-lang/rust/issues/62013
+/// See https://github.com/rust-lang/rust/issues/67957
+///
+/// Ref: https://rust-unofficial.github.io/too-many-lists/third-final.html
 mod link {
     pub struct Node {
         s: String,
@@ -150,8 +156,3 @@ fn main() {
     println!("pop head: {}", list.pop().unwrap_or("?".to_string()));
     println!("pop tail: {}", list.pop_tail().unwrap_or("?".to_string()));
 }
-
-// If normal borrow checker cannot work, then the borrow checker bug still exist, use
-// rustc -Zpolonius main.rs
-// See https://github.com/rust-lang/rust/issues/62013
-// See https://github.com/rust-lang/rust/issues/67957
