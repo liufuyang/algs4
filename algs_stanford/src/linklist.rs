@@ -3,33 +3,36 @@
 /// Ref: https://rust-unofficial.github.io/too-many-lists/fourth-final.html
 use std::ptr;
 
-pub struct Node {
-    s: String,
-    next: Option<Box<Node>>,
+pub struct Node<T> {
+    element: T,
+    next: Option<Box<Node<T>>>,
 }
 
-impl Node {
-    pub fn new(s: String) -> Node {
-        Node { s, next: None }
+impl<T> Node<T> {
+    pub fn new(element: T) -> Node<T> {
+        Node {
+            element,
+            next: None,
+        }
     }
 
-    fn into_element(self: Box<Self>) -> String {
-        self.s
+    fn into_element(self: Box<Self>) -> T {
+        self.element
     }
 
-    pub fn get_value_ref(&self) -> &String {
-        &self.s
+    pub fn get_value_ref(&self) -> &T {
+        &self.element
     }
 }
 
-pub struct LinkedList {
-    head: Option<Box<Node>>,
-    tail: *mut Node,
+pub struct LinkedList<T> {
+    head: Option<Box<Node<T>>>,
+    tail: *mut Node<T>,
     len: usize,
 }
 
-impl LinkedList {
-    pub fn new() -> LinkedList {
+impl<T> LinkedList<T> {
+    pub fn new() -> LinkedList<T> {
         LinkedList {
             head: None,
             tail: ptr::null_mut(),
@@ -42,8 +45,8 @@ impl LinkedList {
     }
 
     /// push element from head
-    pub fn push(&mut self, s: String) -> &mut LinkedList {
-        let mut new_head = Box::new(Node::new(s));
+    pub fn push(&mut self, element: T) -> &mut LinkedList<T> {
+        let mut new_head = Box::new(Node::new(element));
         let raw_head: *mut _ = &mut *new_head;
 
         if !self.tail.is_null() {
@@ -59,7 +62,7 @@ impl LinkedList {
     }
 
     /// pop element from head
-    pub fn pop(&mut self) -> Option<String> {
+    pub fn pop(&mut self) -> Option<T> {
         if let Some(mut old_head) = self.head.take() {
             match old_head.next.take() {
                 Some(next) => {
@@ -75,8 +78,8 @@ impl LinkedList {
     }
 
     /// enqueue element to list at the end
-    pub fn enqueue(&mut self, s: String) -> &mut LinkedList {
-        let mut new_tail = Box::new(Node::new(s));
+    pub fn enqueue(&mut self, element: T) -> &mut LinkedList<T> {
+        let mut new_tail = Box::new(Node::new(element));
         let raw_tail: *mut _ = &mut *new_tail;
 
         if !self.tail.is_null() {
@@ -92,23 +95,23 @@ impl LinkedList {
     }
 
     /// dequeue element from head, the same as pop
-    pub fn dequeue(&mut self) -> Option<String> {
+    pub fn dequeue(&mut self) -> Option<T> {
         self.pop()
     }
 
-    pub fn iter(&self) -> Iter {
+    pub fn iter(&self) -> Iter<T> {
         Iter {
             next: self.head.as_deref(),
         }
     }
 }
 
-pub struct Iter<'a> {
-    next: Option<&'a Node>,
+pub struct Iter<'a, T> {
+    next: Option<&'a Node<T>>,
 }
 
-impl<'a> Iterator for Iter<'a> {
-    type Item = &'a String;
+impl<'a, T> Iterator for Iter<'a, T> {
+    type Item = &'a T;
     fn next(&mut self) -> Option<Self::Item> {
         self.next.map(|n| {
             self.next = n.next.as_deref();
