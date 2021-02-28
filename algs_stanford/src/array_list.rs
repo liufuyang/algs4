@@ -1,3 +1,12 @@
+/// Array type stack queue made via Vec
+///
+/// (), N1(), N2(), N3()
+/// ----^start------^tail
+///
+/// Push, pop from tail as a stack; enqueue from tail, and dequeue from head (same as pop) as a queue;
+///
+/// As stack and queue adding element from the same directions, the iter will work for queue but not stack.
+/// Call `iter().rev()` for stack's iter
 use std::mem;
 
 pub struct ArrayList<T> {
@@ -103,6 +112,7 @@ impl<T> ArrayList<T> {
         }
     }
 
+    /// A queue FIFO order iter. Call `iter().rev()` for stack's iter
     pub fn iter(&self) -> core::slice::Iter<T> {
         match (self.head, self.tail) {
             (Some(head), Some(tail)) => {

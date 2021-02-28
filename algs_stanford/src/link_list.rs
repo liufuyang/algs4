@@ -1,5 +1,12 @@
 /// Unsafe but maybe okay stack queue
 ///
+/// head -> N1() -> N2()
+/// -------------- tail^
+///
+/// Push, pop from head as a stack; enqueue from tail, and dequeue from head (same as pop) as a queue;
+///
+/// As stack and queue adding element from different directions, the iter will work for both stack and queue
+///
 /// Ref: https://rust-unofficial.github.io/too-many-lists/fourth-final.html
 use std::ptr;
 
@@ -99,6 +106,7 @@ impl<T> LinkedList<T> {
         self.pop()
     }
 
+    /// iter for stack's or queue's order
     pub fn iter(&self) -> Iter<T> {
         Iter {
             next: self.head.as_deref(),
