@@ -3,7 +3,7 @@ import java.util.NoSuchElementException;
 
 public class Deque<Item> implements Iterable<Item> {
 
-  static class Node<Item> {
+  private static class Node<Item> {
     private Node<Item> prev;
     private Node<Item> next;
     private final Item item;
@@ -104,7 +104,7 @@ public class Deque<Item> implements Iterable<Item> {
     return new DequeIterator(this);
   }
 
-  class DequeIterator implements Iterator<Item> {
+  private class DequeIterator implements Iterator<Item> {
     private Node<Item> current;
 
     public DequeIterator(Deque<Item> deque) {
