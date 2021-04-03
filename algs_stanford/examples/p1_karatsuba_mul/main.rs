@@ -1,8 +1,7 @@
-#![feature(assoc_char_funcs)]
-
 use std::error::Error;
 use std::fs::File;
 use std::io::{BufRead, BufReader};
+use std::char::from_digit;
 
 /// Karatsuba Multiplication
 /// x = 10^(n/2)a + b
@@ -147,28 +146,6 @@ pub fn vec_decimal_sub(a: &[u8], b: &[u8]) -> Vec<u8> {
     vec
 }
 
-fn main() -> Result<(), Box<dyn Error>> {
-    let file = File::open("./examples/p1_karatsuba_mul/input.txt")?;
-    let numbers = BufReader::new(file)
-        .lines()
-        .map(|line| {
-            line.unwrap()
-                .chars()
-                .map(|c| c.to_digit(10).unwrap() as u8)
-                .collect::<Vec<u8>>()
-        })
-        .collect::<Vec<_>>();
-
-    println!(
-        "{}",
-        karatsuba_mul(&numbers[0], &numbers[1])
-            .into_iter()
-            .map(|n| char::from_digit(n as u32, 10).unwrap_or('_'))
-            .collect::<String>()
-    );
-    Ok(())
-}
-
 #[cfg(test)]
 mod tests {
     use super::karatsuba_mul;
@@ -203,7 +180,7 @@ mod tests {
         assert_eq!(karatsuba_mul(&vec![1, 2], &vec![3, 4]), vec![4, 0, 8]);
         assert_eq!(karatsuba_mul(&vec![1, 2], &vec![3]), vec![3, 6]);
         assert_eq!(
-            karatsuba_mul(&vec![1, 2, 3,], &vec![5, 6, 7,]),
+            karatsuba_mul(&vec![1, 2, 3, ], &vec![5, 6, 7, ]),
             vec![6, 9, 7, 4, 1]
         );
         assert_eq!(
@@ -211,8 +188,31 @@ mod tests {
             vec![7, 0, 0, 6, 6, 5, 2]
         );
         assert_eq!(
-            karatsuba_mul(&vec![1, 2, 3,], &vec![5, 6, 7, 8, 9]),
+            karatsuba_mul(&vec![1, 2, 3, ], &vec![5, 6, 7, 8, 9]),
             vec![6, 9, 8, 5, 0, 4, 7]
         );
     }
+}
+
+fn main() -> Result<(), Box<dyn Error>> {
+    let file = File::open("./examples/p1_karatsuba_mul/input.txt")?;
+    let numbers = BufReader::new(file)
+        .lines()
+        .map(|line| {
+            line.unwrap()
+                .chars()
+                .map(|c| c.to_digit(10).unwrap() as u8)
+                .collect::<Vec<u8>>()
+        })
+        .collect::<Vec<_>>();
+
+    println!(
+        "{}",
+        karatsuba_mul(&numbers[0], &numbers[1])
+            .into_iter()
+            .map(|n| from_digit(n as u32, 10).unwrap_or('_'))
+            .collect::<String>()
+    );
+    Ok(())
+    // 8539734222673567065463550869546574495034888535765114961879601127067743044893204848617875072216249073013374895871952806582723184
 }
