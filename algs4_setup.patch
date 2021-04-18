@@ -1,0 +1,4 @@
+7c7
+< CLASSPATH=".:${LIFT_LIB}/algs4.jar"
+---
+> CLASSPATH=".:${LIFT_LIB}/algs4.jar:${LIFT_LIB}/stdlib.jar"
