@@ -31,7 +31,8 @@ fn main() -> Result<(), Box<dyn Error>> {
     let min_cut = karger_min_cut(&graph);
     println!("min_cut run once: {}", min_cut);
     let min_cut = karger_min_cut_multi(&graph);
-    println!("min_cut run n * {} times: {}", num_cpus::get(), min_cut);
-
+    println!("min_cut run n * {} times (n={}): {}", num_cpus::get(), graph.nodes.len(), min_cut);
+    // result seems to be 17?
+    // output: min_cut run n * 12 times (n=200): 17
     Ok(())
 }
