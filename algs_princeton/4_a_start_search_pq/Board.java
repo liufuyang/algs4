@@ -18,7 +18,7 @@ public class Board {
       for (int n : row) {
         int digit = n == 0 ? 1 : (int) Math.log10(n) + 1;
         String space = " ".repeat(maxDigit - digit + 1);
-        buffer.append(space).append(n).append(" ");
+        buffer.append(" ").append(n).append(space);
       }
       buffer.append('\n');
     }
@@ -34,11 +34,11 @@ public class Board {
   public int hamming() {
     if (hamming != -1) return hamming;
     int tmp = 0;
-    for(int r=0; r<dimension(); r++ ) {
-      for(int c=0; c<dimension(); c++ ) {
-          int correct = dimension()*(r) + c + 1;
-          correct = correct == dimension()*dimension() ? 0 : correct;
-          if (tiles[r][c] != correct) tmp++;
+    for (int r = 0; r < dimension(); r++) {
+      for (int c = 0; c < dimension(); c++) {
+        int correct = dimension() * (r) + c + 1;
+        if (correct == dimension() * dimension()) break;
+        if (tiles[r][c] != correct) tmp++;
       }
     }
     hamming = tmp;
@@ -48,7 +48,20 @@ public class Board {
   //  // sum of Manhattan distances between tiles and goal
   public int manhattan() {
     if (manhattan != -1) return manhattan;
-    return 0;
+    int tmp = 0;
+    for (int r = 0; r < dimension(); r++) {
+      for (int c = 0; c < dimension(); c++) {
+        int correct = dimension() * (r) + c + 1;
+        if (tiles[r][c] == correct) continue;
+        if (tiles[r][c] == 0) {
+          continue;
+        } else {
+          tmp += Math.abs((tiles[r][c] - 1) % dimension() - c) + Math.abs((tiles[r][c] - 1) / dimension() - r);
+        }
+      }
+    }
+    manhattan = tmp;
+    return manhattan;
   }
 
   //  // is this board the goal board?
