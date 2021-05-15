@@ -62,9 +62,7 @@ public class Board {
       for (int c = 0; c < dimension(); c++) {
         int correct = dimension() * (r) + c + 1;
         if (tiles[r][c] == correct) continue;
-        if (tiles[r][c] == 0) {
-          continue;
-        } else {
+        if (tiles[r][c] != 0) {
           tmp +=
               Math.abs((tiles[r][c] - 1) % dimension() - c)
                   + Math.abs((tiles[r][c] - 1) / dimension() - r);
