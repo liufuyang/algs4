@@ -48,7 +48,7 @@ public class PointSET {
   // all points that are inside the rectangle (or on the boundary)
   public Iterable<Point2D> range(RectHV rect) {
     if (rect == null) throw new IllegalArgumentException();
-    return set.stream().filter(rect::contains).collect(Collectors.toSet());
+    return set.stream().filter(rect::contains).collect(Collectors.toCollection(TreeSet::new));
   }
 
   // a nearest neighbor in the set to point p; null if the set is empty

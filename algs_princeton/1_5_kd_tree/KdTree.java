@@ -47,6 +47,7 @@ public class KdTree {
   // does the set contain point p?
   public boolean contains(Point2D p) {
     if (p == null) throw new IllegalArgumentException();
+    if (root == null) return false;
     return root.search(p).pointEquals(p);
   }
 
@@ -64,6 +65,8 @@ public class KdTree {
   // a nearest neighbor in the set to point p; null if the set is empty
   public Point2D nearest(Point2D p) {
     if (p == null) throw new IllegalArgumentException();
+    if (root == null) return null;
+
     Queue<Node> queue = new Queue<>();
     queue.enqueue(root);
     Point2D nearest = root.getPoint2D();
@@ -76,7 +79,7 @@ public class KdTree {
         // X_ORDER
         if (current.getComparator().compare(p, current.getPoint2D()) < 0) { // p on the left
           if (current.getLeft() != null) queue.enqueue(current.getLeft());
-          if (nearest.distanceTo(p) > current.getPoint2D().x() - p.x()) {
+          if (nearest.distanceTo(p) >= current.getPoint2D().x() - p.x()) {
             if (current.getRight() != null) queue.enqueue(current.getRight());
           }
         } else { // p on the right
@@ -89,7 +92,7 @@ public class KdTree {
         // Y_ORDER
         if (current.getComparator().compare(p, current.getPoint2D()) < 0) { // p on the bottom
           if (current.getLeft() != null) queue.enqueue(current.getLeft());
-          if (nearest.distanceTo(p) > current.getPoint2D().y() - p.y()) {
+          if (nearest.distanceTo(p) >= current.getPoint2D().y() - p.y()) {
             if (current.getRight() != null) queue.enqueue(current.getRight());
           }
         } else { // p on the upper
@@ -105,7 +108,16 @@ public class KdTree {
   }
 
   // unit testing of the methods (optional)
-  public static void main(String[] args) {}
+  public static void main(String[] args) {
+    KdTree tree = new KdTree();
+    tree.insert(new Point2D(0.7, 0.2)); // A
+    tree.insert(new Point2D(0.5, 0.4)); // b
+    tree.insert(new Point2D(0.2, 0.3)); // c
+    tree.insert(new Point2D(0.4, 0.7)); // d
+    tree.insert(new Point2D(0.9, 0.6)); // e
+
+    System.out.println(tree.nearest(new Point2D(0.39, 0.31)));
+  }
 }
 
 class Node {
@@ -132,6 +144,7 @@ class Node {
     Node prev = n;
     while (n != null) {
       prev = n;
+      if (prev.getPoint2D().compareTo(point2D) == 0) return prev;
       if (n.comparator.compare(point2D, n.point2D) < 0) {
         n = n.left;
       } else {
@@ -176,9 +189,9 @@ class Node {
     if (this.right == null) return false;
 
     if (this.comparator == Point2D.X_ORDER) {
-      if (rectHV.xmax() > this.point2D.x()) return true;
+      if (rectHV.xmax() >= this.point2D.x()) return true;
     } else {
-      if (rectHV.ymax() > this.point2D.y()) return true;
+      if (rectHV.ymax() >= this.point2D.y()) return true;
     }
     return false;
   }
@@ -211,7 +224,7 @@ class NodeIterator implements Iterator<Point2D> {
   private Queue<Node> queue = new Queue<>();
 
   public NodeIterator(Node node, RectHV rectHV) {
-    this.queue.enqueue(node);
+    if (node != null) this.queue.enqueue(node);
     this.rectHV = rectHV;
   }
 
