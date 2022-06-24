@@ -51,6 +51,10 @@ impl<T> LinkedList<T> {
         self.len
     }
 
+    pub fn is_empty(&self) -> bool {
+        self.len == 0
+    }
+
     /// push element from head
     pub fn push(&mut self, element: T) -> &mut LinkedList<T> {
         let mut new_head = Box::new(Node::new(element));
